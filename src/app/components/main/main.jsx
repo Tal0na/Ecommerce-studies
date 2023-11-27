@@ -1,6 +1,6 @@
-import React from "react";
-import Image from "next/image";
-import Link from "next/link";
+import React from "react"
+import Image from "next/image"
+import Link from "next/link"
 /*TODO:Mural  */
 /*TODO:Bolinhas com Promoção/desconto*/
 /*TODO:Produtos*/
@@ -29,7 +29,7 @@ const Main = () => {
         {/* Adicione aqui conteúdo adicional que você queira incluir na sua página principal */}
       </section>
     </main>
-  );
-};
+  )
+}
 
-export default Main;
+export default Main

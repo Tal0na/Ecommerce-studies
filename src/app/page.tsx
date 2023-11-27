@@ -1,7 +1,8 @@
+import React from "react"
 import Image from "next/image"
 import Navbar from "./components/NavTop/NavBarComponent"
 import Main from "./components/main/main"
-import Footer from "./components/footer/Footer";
+import Footer from "./components/footer/Footer"
 
 export default function Home() {
   return (
@@ -9,7 +10,6 @@ export default function Home() {
       <Navbar />
       <Main />
       <Footer />
-
     </>
   )
 }
