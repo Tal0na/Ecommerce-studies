@@ -1,16 +1,39 @@
+import jwt from 'jsonwebtoken'
 let users = []
-export function cadastro(boty) {
-  const user = user.find(({ email }) => email === boty.email)
-  if (user) throw new Error("Usuario já cadastrado")
 
-  users.push(boty)
-  return boty
+const SECRET = process.env.JWT_SECRET
+
+function generateToken(user) {
+  return jwt.sign({ name: user.name, email: user.email }, SECRET)
 }
 
-export function login(boty) {
-  const user = user.find(({ email }) => email === boty.email)
-  if (!user) throw new Error("Usuario não encontrado")
-  if (user.password !== boty.password) throw new Error("Senha incorreta")
-  return user
+function readToken(token) {
+  try {
+    return jwt.verify(token, SECRET)
+  } catch (err) {
+    throw new ('token_invalido')
+  }
 }
 
+export function cadastro(body) {
+  const user = users.find(({ email }) => email === body.email)
+  if (user) throw new Error('usuario_ja_cadastrado')
+
+  users.push(body) //substituir por um BD
+
+  const token = generateToken(body)
+  return token
+}
+
+export function login(body) {
+  const user = users.find(({ email }) => email === body.email) //substituir por um bd
+  if (!user) throw new Error('usuario_nao_encontrado')
+  if (user.password !== body.password) throw new Error('senha_incorreta')
+
+  const token = generateToken(user)
+  return token
+}
+
+export function verifica(token) {
+  return readToken(token)
+}

@@ -1,32 +1,47 @@
-import React, { useState } from "react";
-import Link from "next/link";
+import { useState } from "react"
+import { setCookie } from "cookies-next"
+import { useRouter } from "next/router"
 
-export default function Create() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+import Link from "next/link"
+export default function CadastroPage() {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+  })
+  const [error, setError] = useState("")
+  const router = useRouter()
 
-  const handleCadastro = async () => {
+  const handleChangeForm = (event, field) => {
+    setForm({
+      ...form,
+      [field]: event.target.value,
+    })
+  }
+
+  const handleForm = async (e) => {
+    e.preventDefault()
+
+    if (!form.name) return setError("O nome é obrigatório")
+    if (!form.email) return setError("O e-mail é obrigatório")
+    if (!form.password) return setError("a senha é obrigatório")
+
+    setError("")
     try {
-      const response = await fetch("/api/user/cadastro", {
+      const response = await fetch(`/api/user/cadastro`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+        body: JSON.stringify(form),
+      })
 
-      if (response.ok) {
-        // Lógica de sucesso, redirecionamento ou exibição de mensagem
-        console.log("Usuário cadastrado com sucesso!");
-      } else {
-        // Lógica para lidar com erros na resposta
-        const data = await response.json();
-        console.error("Erro no cadastro:", data.error);
-      }
-    } catch (error) {
-      console.error("Erro ao processar cadastro:", error.message);
+      const json = await response.json()
+
+      if (response.status !== 200) throw new Error(json)
+      setCookie("authorization", json)
+      router.push("/")
+    } catch (err) {
+      setError(err.message)
     }
-  };
+  }
 
   return (
     <>
@@ -47,14 +62,17 @@ export default function Create() {
         />
         <button
           className="w-full p-2 bg-blue-500 text-white rounded-md"
-          onClick={handleCadastro}  
+          onClick={handleCadastro}
         >
           Cadastrar
         </button>
-        <Link href="/account/Login" className="block text-center text-blue-500 mt-2">
+        <Link
+          href="/account/Login"
+          className="block text-center text-blue-500 mt-2"
+        >
           Já possui uma conta?
         </Link>
       </div>
     </>
-  );
+  )
 }

@@ -1,30 +1,46 @@
-import React, { useState } from "react"
-import Link from "next/link"
+import { useState } from 'react'
+import { setCookie } from 'cookies-next'
+import { useRouter } from 'next/router'
 
-export default function Login() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+import Link from 'next/link'
 
-  const handleLogin = async () => {
+
+
+export default function LoginPage() {
+  const [form, setForm] = useState({
+    email: '',
+    password: ''
+  })
+  const [error, setError] = useState('')
+  const router = useRouter()
+
+  const handleChangeForm = (event, field) => {
+    setForm({
+      ...form,
+      [field]: event.target.value
+    })
+  }
+
+  const handleForm = async (e) => {
+    e.preventDefault()
+
+    if (!form.email) return setError('O e-mail é obrigatório')
+    if (!form.password) return setError('a senha é obrigatório')
+
+    setError('')
     try {
-      const response = await fetch("/api/user/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
+      const response = await fetch(`/api/user/login`, {
+        method: 'POST',
+        body: JSON.stringify(form)
       })
 
-      if (response.ok) {
-        // Lógica de sucesso, redirecionamento ou exibição de mensagem
-        console.log("Login bem-sucedido!")
-      } else {
-        // Lógica para lidar com erros na resposta
-        const data = await response.json()
-        console.error("Erro no login:", data.error)
-      }
-    } catch (error) {
-      console.error("Erro ao processar login:", error.message)
+      const json = await response.json()
+
+      if (response.status !== 200) throw new Error(json)
+      setCookie('authorization', json)
+      router.push('/')
+    } catch (err) {
+      setError(err.message)
     }
   }
 
@@ -35,14 +51,16 @@ export default function Login() {
           className="w-full p-2 mb-4 border border-gray-300 rounded-md text-black"
           type="text"
           placeholder="Seu e-mail"
-          value={email}
+          value={FormData.email}
+          required
           onChange={(e) => setEmail(e.target.value)}
         />
         <input
           className="w-full p-2 mb-4 border border-gray-300 rounded-md text-black"
           type="password"
           placeholder="Sua senha"
-          value={password}
+          value={FormData.password}
+          required
           onChange={(e) => setPassword(e.target.value)}
         />
         <button
